@@ -110,7 +110,10 @@ environment:
 | bun | 8094 |
 | rust | 8095 |
 | rust-axum | 8096 |
-| *(next available)* | 8097+ |
+| http4k | 8097 |
+| http4k-native | 8098 |
+| tachyon | 8099 |
+| *(next available)* | 8101+ (8100 is api-service) |
 
 ---
 
@@ -253,6 +256,7 @@ The `get_user_cart` tool is the key differentiator between concurrency models. H
 | Node.js | `Promise.all()` |
 | Java WebFlux | `Mono.zip()` |
 | Java VT | `Thread.ofVirtual()` / `CompletableFuture` |
+| Tachyon | virtual-thread handlers + Lettuce `async()` commands overlapping blocking HTTP |
 | Quarkus | `Uni.combine().all().unis(...).asTuple()` |
 | Micronaut | fire Lettuce `async()` commands → blocking HTTP → `.toCompletableFuture().join()` |
 

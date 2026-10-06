@@ -40,6 +40,7 @@ benchmark-mcp-servers-v2/
 ├── java-webflux-server/      # Spring Boot 4 WebFlux (Reactor / Netty)
 ├── quarkus-server/           # Quarkus 3.31.4 (Vert.x / Mutiny)
 ├── micronaut-server/         # Micronaut 4.10.8 / MCP SDK 0.0.19
+├── tachyon-server/           # Tachyon MCP 1.0.0 / Netty / Java 21 virtual threads
 ├── nodejs-server/            # MCP SDK + Express, WEB_CONCURRENCY=4
 ├── python-server/            # FastMCP + uvloop, 4 workers
 ├── api-service/              # Go HTTP API (100k in-memory products)
@@ -126,6 +127,29 @@ k6 run -e SERVER_URL=http://localhost:8095/mcp benchmark/benchmark.js
 | java-webflux-native | 8090 |
 | micronaut | 8091 |
 | micronaut-native | 8092 |
+| tachyon | 8099 |
+
+### Tachyon MCP
+
+The `tachyon-server/` module uses released Tachyon MCP **1.0.0** with stateless
+Streamable HTTP at `/mcp` and a `/health` endpoint. Its Java virtual-thread tool
+handlers overlap Lettuce async Redis commands with JDK HTTP client requests.
+It implements the same three I/O tools and uses the same 2 CPU / 2 GB limits.
+Tools use Tachyon `@McpTool` methods with Java request/response records.
+kt-schema **0.9.0** generates their JSON schemas at compile time from `@Schema`,
+`@Description`, and Jackson property annotations; runtime JSON Schema validation is disabled.
+
+```bash
+docker compose up -d mcp-redis mcp-api-service
+docker compose run --rm redis-seeder
+docker compose up -d --build tachyon-server
+python3 -c 'from test_mcp_servers import test_server; import sys; sys.exit(0 if test_server("tachyon", "http://localhost:8099/mcp") else 1)'
+./benchmark/run_benchmark.sh tachyon
+```
+
+For a local Java 21+ build: `mvn -f tachyon-server/pom.xml package`.
+The Docker build resolves released dependencies from Maven Central and does not
+require a sibling Tachyon checkout.
 
 ## Adding a New Server
 

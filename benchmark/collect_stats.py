@@ -40,6 +40,9 @@ class DockerStatsCollector:
 
     def _calculate_cpu_percent(self, stats):
         """Calculate CPU usage percentage from Docker stats."""
+        # Podman's Docker API reports CPU percent directly and omits the previous system counter.
+        if 'cpu' in stats['cpu_stats'] and 'system_cpu_usage' not in stats['precpu_stats']:
+            return stats['cpu_stats']['cpu']
         cpu_delta = (
             stats['cpu_stats']['cpu_usage']['total_usage'] -
             stats['precpu_stats']['cpu_usage']['total_usage']

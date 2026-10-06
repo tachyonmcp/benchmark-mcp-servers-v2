@@ -24,6 +24,7 @@ declare -A SERVERS=(
     [rust]="mcp-rust-server:8095"
     [http4k]="mcp-bun-server:8097"
     [http4k-native]="mcp-rust-server:8098"
+    [tachyon]="mcp-tachyon-server:8099"
 )
 
 # Colors
@@ -329,7 +330,7 @@ main() {
     done
 
     if [ ${#SELECTED_SERVERS[@]} -eq 0 ]; then
-        SELECTED_SERVERS=(python go nodejs bun java java-native quarkus quarkus-native java-vt java-vt-native java-webflux java-webflux-native micronaut micronaut-native rust)
+        SELECTED_SERVERS=(python go nodejs bun java java-native quarkus quarkus-native java-vt java-vt-native java-webflux java-webflux-native micronaut micronaut-native rust tachyon)
     fi
 
     # Shuffle server order if requested (eliminates order bias without needing Redis resets

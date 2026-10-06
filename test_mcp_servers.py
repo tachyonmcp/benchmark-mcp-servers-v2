@@ -31,6 +31,7 @@ SERVERS = {
     "rust-axum":      "http://localhost:8096/mcp",
     "http4k":         "http://localhost:8097/mcp",
     "http4k-native":  "http://localhost:8098/mcp",
+    "tachyon":        "http://localhost:8099/mcp",
 }
 
 
