@@ -22,8 +22,8 @@ declare -A SERVERS=(
     [micronaut-native]="mcp-micronaut-native-server:8092"
     [bun]="mcp-bun-server:8094"
     [rust]="mcp-rust-server:8095"
-    [http4k]="mcp-bun-server:8097"
-    [http4k-native]="mcp-rust-server:8098"
+    [http4k]="mcp-http4k-server:8097"
+    [http4k-native]="mcp-http4k-native-server:8098"
     [tachyon]="mcp-tachyon-server:8099"
 )
 
