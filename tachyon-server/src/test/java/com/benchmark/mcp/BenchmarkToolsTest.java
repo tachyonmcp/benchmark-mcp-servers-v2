@@ -11,6 +11,8 @@ import com.sun.net.httpserver.HttpServer;
 import dev.tachyonmcp.api.json.JsonSchemaValidator;
 import dev.tachyonmcp.core.server.TachyonServer;
 import io.lettuce.core.RedisFuture;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.protocol.AsyncCommand;
 import io.lettuce.core.protocol.Command;
@@ -44,6 +46,10 @@ class BenchmarkToolsTest {
         boolean explicit = argumentMode.equals("explicit");
         String user = explicit ? "user-00017" : "user-00042";
         var redis = (RedisAsyncCommands<String, String>) mock(RedisAsyncCommands.class);
+        var redisClient = mock(RedisClient.class);
+        var redisConnection = (StatefulRedisConnection<String, String>) mock(StatefulRedisConnection.class);
+        when(redisClient.connect()).thenReturn(redisConnection);
+        when(redisConnection.async()).thenReturn(redis);
         var popular = BenchmarkToolsTest.<List<String>>pending();
         var history = BenchmarkToolsTest.<List<String>>pending();
         var rate = BenchmarkToolsTest.<Long>pending();
@@ -84,12 +90,13 @@ class BenchmarkToolsTest {
             exchange.close();
         });
         api.start();
-        try (var http = HttpClient.newHttpClient();
+        try (var store = new ProduceServiceClient(redisClient, HttpClient.newHttpClient(),
+                     "http://127.0.0.1:" + api.getAddress().getPort());
+             var http = HttpClient.newHttpClient();
              var server = TachyonServer.builder().port(0)
                      .json(config -> config.schemaValidator(JsonSchemaValidator.noop()))
                      .pipelineCustomizer(p -> p.addBefore("mcp-endpoint", "health", new HealthCheck()))
-                     .annotations(annotations -> annotations.register(new BenchmarkTools(http, redis,
-                             "http://127.0.0.1:" + api.getAddress().getPort(), "tachyon")))
+                     .annotations(annotations -> annotations.register(new BenchmarkTools(store, "tachyon")))
                      .build()) {
             server.start();
             String base = "http://127.0.0.1:" + server.port();
